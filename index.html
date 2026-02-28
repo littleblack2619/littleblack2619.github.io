@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIMMY-WORK | Portfolio</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX parsing -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Framer Motion CDN -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @layer base {
+            html { scroll-behavior: smooth; }
+            body { background-color: #050505; color: white; }
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .text-gradient { background-clip: text; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(to right, #3498db, #a29bfe); }
+        .glow-blue { box-shadow: 0 0 20px rgba(52, 152, 219, 0.3); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        // Icon Component using Lucide
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => { lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        const Navbar = ({ activeTab, onTabChange }) => {
+            const [isScrolled, setIsScrolled] = useState(false);
+            const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => setIsScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const navItems = [
+                { id: 'home', label: '首页' },
+                { id: 'project', label: 'DNF助手项目' },
+                { id: 'about', label: '了解我' }
+            ];
+
+            return (
+                <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-4 bg-black/80 backdrop-blur-lg border-b border-white/10' : 'py-8 bg-transparent'}`}>
+                    <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+                        <div className="text-2xl font-display font-bold tracking-tighter text-white">JIMMY-WORK</div>
+                        
+                        <div className="hidden md:flex items-center space-x-1 bg-white/5 p-1 rounded-full border border-white/10">
+                            {navItems.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => onTabChange(item.id)}
+                                    className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all ${activeTab === item.id ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button className="md:hidden text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                            <Icon name={isMobileMenuOpen ? "x" : "menu"} />
+                        </button>
+                    </div>
+
+                    <AnimatePresence>
+                        {isMobileMenuOpen && (
+                            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-xl border-b border-white/10 p-6 flex flex-col space-y-4">
+                                {navItems.map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { onTabChange(item.id); setIsMobileMenuOpen(false); }}
+                                        className={`text-left text-lg font-medium ${activeTab === item.id ? 'text-[#3498db]' : 'text-gray-400'}`}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </nav>
+            );
+        };
+
+        const Home = ({ onNavigateToProject }) => (
+            <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <video autoPlay muted loop playsInline className="w-full h-full object-cover opacity-30 scale-110">
+                        <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-plexus-background-2724-large.mp4" type="video/mp4" />
+                    </video>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-80" />
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
+                </div>
+
+                <div className="relative z-10 text-center px-4 max-w-5xl">
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="flex flex-col items-center">
+                        <span className="inline-block px-4 py-1.5 text-[#3498db] text-xs font-bold uppercase mb-12 tracking-[0.2em]">Product Specialist & Developer</span>
+                        <h1 className="text-4xl sm:text-5xl md:text-8xl font-display font-bold text-white mb-10 tracking-tighter leading-[1.1] md:leading-[0.9]">
+                            用习惯驱动体验<br /><span className="text-gradient">用数据推动创新</span>
+                        </h1>
+                        <p className="text-base md:text-xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed mb-12 md:mb-16">专注游戏社区赛道，通过深度痛点挖掘与敏捷迭代，为百万级玩家构建卓越的数字服务生态社区。</p>
+
+                        <motion.button whileHover="hover" onClick={onNavigateToProject} className="group relative px-8 md:px-16 py-6 md:py-8 flex items-center justify-center overflow-hidden w-full sm:w-auto">
+                            <div className="absolute inset-0 bg-white/[0.02] group-hover:bg-[#3498db]/5 transition-colors duration-700" />
+                            <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-white/10 group-hover:border-[#3498db] group-hover:w-10 group-hover:h-10 transition-all duration-500" />
+                            <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-white/10 group-hover:border-[#3498db] group-hover:w-10 group-hover:h-10 transition-all duration-500" />
+                            <div className="relative flex items-center gap-4 md:gap-8">
+                                <div className="flex flex-col items-start">
+                                    <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-[#3498db] mb-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase">Access Data</span>
+                                    <span className="text-xl md:text-3xl font-display font-bold tracking-[0.2em] text-white/90 group-hover:text-white uppercase whitespace-nowrap">前往项目经历</span>
+                                </div>
+                                <div className="w-10 h-10 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center group-hover:border-[#3498db]/50 group-hover:bg-[#3498db]/10 transition-all">
+                                    <Icon name="arrow-up-right" className="text-white/40 group-hover:text-[#3498db]" />
+                                </div>
+                            </div>
+                        </motion.button>
+                    </motion.div>
+                </div>
+            </section>
+        );
+
+        const Project = () => {
+            const [activeSubTab, setActiveSubTab] = useState('data');
+            const subTabs = [
+                { id: 'data', label: '游戏数据' },
+                { id: 'social', label: '社交互动' },
+                { id: 'commercial', label: '商业化' },
+                { id: 'basic', label: '基础功能' },
+                { id: 'feature', label: '特色模块' }
+            ];
+
+            const projectData = {
+                data: { title: '游戏数据模块', icon: 'bar-chart-2', description: '构建实时、精准的游戏数据看板，帮助玩家深度分析游戏表现。', stats: [{ label: '决策效率', value: '+30%' }, { label: '活跃度', value: '+15%' }, { label: '准确率', value: '99.9%' }], responsibilities: ['主导数据架构设计', '优化高并发查询', '实现多端同步'] },
+                social: { title: '社交互动模块', icon: 'users', description: '打造高活跃的游戏社区，实现玩家间的深度互动与内容分享。', stats: [{ label: '互动率', value: '+45%' }, { label: '留存率', value: '+10%' }, { label: '内容量', value: '2M+' }], responsibilities: ['设计社交关系链', '开发实时聊天系统', '构建内容分发引擎'] },
+                commercial: { title: '商业化模块', icon: 'shopping-cart', description: '探索多元化的商业模式，在不影响用户体验的前提下提升营收。', stats: [{ label: '转化率', value: '+12%' }, { label: 'ARPU', value: '+8%' }, { label: '满意度', value: '95%' }], responsibilities: ['设计会员体系', '优化支付链路', '制定精准营销策略'] },
+                basic: { title: '基础功能模块', icon: 'settings', description: '夯实产品根基，确保百万级用户下的极致稳定与流畅体验。', stats: [{ label: '响应速度', value: '-200ms' }, { label: '崩溃率', value: '<0.01%' }, { label: '覆盖率', value: '100%' }], responsibilities: ['系统性能调优', '自动化测试部署', '多端适配优化'] },
+                feature: { title: '特色模块', icon: 'zap', description: '创新驱动，开发具有竞争力的差异化功能，引领行业趋势。', stats: [{ label: '创新指数', value: 'High' }, { label: '口碑值', value: '4.9/5' }, { label: '传播力', value: 'Viral' }], responsibilities: ['前瞻性功能研发', '用户反馈快速闭环', '品牌视觉升级'] }
+            };
+
+            const current = projectData[activeSubTab];
+
+            return (
+                <section className="pt-24 md:pt-32 pb-16 md:pb-24 px-4 max-w-7xl mx-auto min-h-screen">
+                    <div className="mb-10 md:mb-16">
+                        <div className="flex items-center gap-4 mb-4 md:mb-6">
+                            <div className="w-8 md:w-12 h-[1px] bg-[#3498db]" />
+                            <span className="text-[#3498db] font-bold tracking-[0.2em] uppercase text-xs md:text-sm">Project Case Study</span>
+                        </div>
+                        <h1 className="text-4xl md:text-7xl font-display font-bold text-white mb-4 md:mb-6 tracking-tighter">DNF助手项目</h1>
+                        <p className="text-gray-500 text-base md:text-xl max-w-2xl font-light">主导全生命周期开发，覆盖数据、社交、商业化多模块，累计服务百万级玩家。</p>
+                    </div>
+
+                    <div className="overflow-x-auto pb-4 md:pb-6 mb-8 md:mb-12 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                        <div className="flex items-center w-max min-w-full">
+                            <div className="flex space-x-2 bg-white/5 p-1 rounded-full border border-white/10">
+                                {subTabs.map((tab) => (
+                                    <button key={tab.id} onClick={() => setActiveSubTab(tab.id)} className={`whitespace-nowrap px-4 md:px-8 py-2 md:py-3 rounded-full text-xs md:text-sm font-medium transition-all ${activeSubTab === tab.id ? 'text-white bg-[#3498db] glow-blue' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                        <motion.div key={activeSubTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="glass rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-12 overflow-hidden relative">
+                            <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-[#3498db]/10 blur-[80px] md:blur-[120px] -z-10" />
+                            <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
+                                        <div className="p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/10 glow-blue">
+                                            <Icon name={current.icon} size={32} />
+                                        </div>
+                                        <h2 className="text-2xl md:text-4xl font-display font-bold text-white tracking-tight">{current.title}</h2>
+                                    </div>
+                                    <p className="text-gray-400 text-base md:text-lg leading-relaxed mb-8 md:mb-10 max-w-2xl">{current.description}</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+                                        {current.stats.map((stat, idx) => (
+                                            <div key={idx} className="bg-white/5 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
+                                                <div className="text-[#3498db] text-2xl md:text-3xl font-display font-bold mb-1">{stat.value}</div>
+                                                <div className="text-gray-500 text-[10px] md:text-sm uppercase tracking-wider font-medium">{stat.label}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="space-y-4 md:space-y-6">
+                                        <h3 className="text-lg md:text-xl font-display font-bold text-white flex items-center gap-3">
+                                            <span className="w-6 md:w-8 h-[1px] bg-[#3498db]" /> 核心职责
+                                        </h3>
+                                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                                            {current.responsibilities.map((item, idx) => (
+                                                <li key={idx} className="flex items-start gap-2 md:gap-3 text-gray-400 text-sm md:text-base">
+                                                    <span className="text-[#3498db] mt-1">✔️</span>
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div className="lg:w-2/5">
+                                    <div className="relative aspect-video lg:aspect-square bg-black rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-white/10">
+                                        <img src={`https://picsum.photos/seed/dnf-${activeSubTab}/800/800`} alt={current.title} className="w-full h-full object-cover opacity-60" />
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+                </section>
+            );
+        };
+
+        const AboutMe = () => {
+            const skills = [
+                { name: '产品规划', icon: <Icon name="compass" />, desc: '深度洞察用户需求，制定清晰的产品路线图与迭代策略。', color: 'from-blue-500/20 to-cyan-500/20' },
+                { name: '数据分析', icon: <Icon name="pie-chart" />, desc: '精通SQL与BI工具，通过数据驱动决策，优化产品核心指标。', color: 'from-purple-500/20 to-pink-500/20' },
+                { name: '全栈开发', icon: <Icon name="code" />, desc: '熟练掌握React/Node.js，具备从前端到后端的完整交付能力。', color: 'from-emerald-500/20 to-teal-500/20' },
+                { name: '敏捷迭代', icon: <Icon name="refresh-cw" />, desc: '擅长Scrum流程，确保项目在快节奏环境下高质量交付。', color: 'from-orange-500/20 to-red-500/20' }
+            ];
+
+            return (
+                <section className="pt-24 md:pt-32 pb-16 md:pb-24 px-4 max-w-7xl mx-auto min-h-screen">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20">
+                        <div>
+                            <div className="flex items-center gap-4 mb-6 md:mb-8">
+                                <div className="w-8 md:w-12 h-[1px] bg-[#3498db]" />
+                                <span className="text-[#3498db] font-bold tracking-[0.2em] uppercase text-xs md:text-sm">Core Capabilities</span>
+                            </div>
+                            <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-8 md:mb-12 tracking-tighter">核心技能</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                                {skills.map((skill, idx) => (
+                                    <div key={idx} className={`p-6 md:p-8 rounded-2xl md:rounded-3xl border bg-gradient-to-br ${skill.color} flex flex-col gap-3 md:gap-4`}>
+                                        <div className="flex items-center gap-3 font-display font-bold text-lg md:text-xl">{skill.icon}{skill.name}</div>
+                                        <div className="text-xs md:text-sm opacity-60 font-light tracking-wide">{skill.desc}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="flex items-center gap-4 mb-6 md:mb-8">
+                                <div className="w-8 md:w-12 h-[1px] bg-[#3498db]" />
+                                <span className="text-[#3498db] font-bold tracking-[0.2em] uppercase text-xs md:text-sm">Personal Brand</span>
+                            </div>
+                            <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-8 md:mb-12 tracking-tighter">关于我</h2>
+                            <div className="space-y-4 md:space-y-6">
+                                {[
+                                    { title: '职业定位', content: '专注游戏工具类产品，擅长从用户痛点出发，通过数据与功能迭代提升产品价值。' },
+                                    { title: '项目经验', content: '主导DNF助手全生命周期开发，覆盖数据、社交、商业化多模块，累计服务百万级玩家。' },
+                                    { title: '个人特质', content: '逻辑严谨，热爱探索新技术，追求“用最小成本解决最大问题”的落地能力。' }
+                                ].map((item, idx) => (
+                                    <div key={idx} className="glass p-6 md:p-10 rounded-[1.5rem] md:rounded-[2rem]">
+                                        <h3 className="text-[#3498db] font-display font-bold text-xl md:text-2xl mb-3 md:mb-4 flex items-center gap-3">
+                                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#3498db]" />{item.title}
+                                        </h3>
+                                        <p className="text-gray-400 text-base md:text-lg leading-relaxed font-light">{item.content}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Footer = () => (
+            <footer className="bg-black border-t border-white/10 py-16 md:py-24 px-6 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 relative z-10">
+                    <div className="text-center md:text-left">
+                        <div className="text-3xl font-display font-bold mb-4 tracking-tighter">JIMMY-WORK</div>
+                        <p className="text-gray-500 max-w-xs">用习惯驱动体验，用数据推动创新。构建卓越的数字服务生态社区。</p>
+                    </div>
+                    <div className="flex flex-col items-center md:items-end gap-4">
+                        <div className="flex gap-6">
+                            {['github', 'linkedin', 'mail'].map(icon => (
+                                <a key={icon} href="#" className="text-gray-500 hover:text-[#3498db] transition-colors">
+                                    <Icon name={icon} />
+                                </a>
+                            ))}
+                        </div>
+                        <div className="text-gray-600 text-sm">© 2026 JIMMY-WORK. All rights reserved.</div>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('home');
+            return (
+                <div className="min-h-screen bg-[#050505]">
+                    <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+                    <main>
+                        {activeTab === 'home' && <Home onNavigateToProject={() => setActiveTab('project')} />}
+                        {activeTab === 'project' && <Project />}
+                        {activeTab === 'about' && <AboutMe />}
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
